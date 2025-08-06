@@ -7,6 +7,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\WeekController;
 use Illuminate\Support\Facades\Route;
+use App\Exports\LoansExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Loan;
+
 
 Route::get('/', function () {
     return view('auth.login');
@@ -20,7 +24,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-
+Route::get('/loans/export', function () {
+    $loans = Loan::with(['client.user'])->get(); // Obtener todos los préstamos con relaciones
+    return Excel::download(new LoansExport($loans), 'reporte_prestamos.xlsx');
+})->name('loans.export');
 Route::middleware(['auth'])->group(function () {
     Route::resource('clients', ClientController::class);
 });
@@ -47,6 +54,13 @@ Route::middleware('auth')->group(function () {
     // Editar semana (admin)
     Route::get('/weeks/{week}/edit', [WeekController::class, 'edit'])->name('weeks.edit');
     Route::put('/weeks/{week}', [WeekController::class, 'update'])->name('weeks.update');
+
+    Route::get('/weeks/{week}/abonar', [WeekController::class, 'showAbonoForm'])->name('weeks.abonoForm');
+    Route::post('/weeks/{week}/abonar', [WeekController::class, 'procesarAbono'])->name('weeks.procesarAbono');
+
+    Route::get('/reporte-prestamos', [LoanController::class, 'reporte'])->name('reporte.prestamos');
+
+
 
 
 

@@ -22,15 +22,15 @@
               @if (session('error'))
                 <div class="alert alert-danger">{{ session('error') }}</div>
               @endif
-               @if (!$tienePrestamoActivo)
+               {{-- @if (!$tienePrestamoActivo) --}}
                   <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#nuevoPrestamoModal">
                     Nuevo Préstamo
                   </button>
-                @else
-                  <div class="alert alert-warning mb-0">
+               {{--  @else --}}
+                 {{--  <div class="alert alert-warning mb-0">
                     Este cliente ya tiene un préstamo activo. No puede solicitar uno nuevo hasta liquidar el actual.
-                  </div>
-                @endif
+                  </div> --}}
+                {{-- @endif --}}
                 <div class="table-responsive">
               <table class="table table-striped table-responsive">
                 <thead>
@@ -47,7 +47,7 @@
                     <tr>
                       <td>{{ $loan->id }}</td>
                       <td>${{ number_format($loan->monto, 2) }}</td>
-                      <td>{{ $loan->created_at->format('d/m/Y') }}</td>
+                      <td>{{ $loan->fecha_inicio }}</td>
                       <td>{{ ucfirst($loan->estado) }}</td>
                       <td>
                         <a href="{{ route('loans.show', $loan) }}" class="btn btn-sm btn-primary">Ver Detalle</a>

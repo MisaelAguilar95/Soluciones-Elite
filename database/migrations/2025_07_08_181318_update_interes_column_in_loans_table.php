@@ -19,7 +19,7 @@ return new class extends Migration
 public function down()
 {
     Schema::table('loans', function (Blueprint $table) {
-        $table->decimal('interes', 5, 2)->default(0)->change();
+        $table->dropColumn('interes');
     });
 }
 

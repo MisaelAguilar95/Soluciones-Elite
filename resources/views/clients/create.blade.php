@@ -14,8 +14,9 @@
           <div class="card">
             <div class="card-header pb-0 pt-3 bg-transparent">
             <div class="container py-4">
+               
                 <h3 class="mb-4">Nuevo Cliente</h3>
-
+          
                 @if ($errors->any())
                   <div class="alert alert-danger">
                     <strong>Ups!</strong> Hubo algunos errores con tu formulario.<br><br>

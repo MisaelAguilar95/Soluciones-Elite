@@ -1,4 +1,5 @@
 @extends('layouts.app')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
 @section('content')
   <div class="min-height-300 bg-dark position-absolute w-100"></div>
@@ -16,17 +17,20 @@
             <div class="card-body pb-0 pt-3 bg-transparent">
              <div class="d-flex justify-content-between mb-3">
                 <h3><i class="ni ni-satisfied text-dark text-md opacity-10"></i> Clientes</h3>
+                @if(auth()->user()->level === 'admin')
                 <a href="{{ route('clients.create') }}" class="btn btn-primary">+ Nuevo Cliente</a>
+                @endif
               </div>
               @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
               @endif
               <div class="table-responsive">
-              <table class="table table-striped ">
+              <table id="clientsTable" class="table table-striped ">
                 <thead>   
                   <tr>
+                    <th hidden>Creado</th>
                     <th>Nombre</th>
-                    <th>Teléfono</th>
+                    <th>CURP</th>
                     <th>Creador</th>
                     <th>Monto</th>
                     <th>Restante</th>
@@ -37,7 +41,7 @@
                 <tbody>
                   @foreach ($clients as $client)
                     @php
-                      $prestamoActivo = $client->loans->first(); // ya filtraste activos
+                      $prestamoActivo = $client->loans->last(); // ya filtraste activos
                       $estado = $prestamoActivo ? $prestamoActivo->estado : null;
                       $badgeColor = match($estado) {
                         'activo' => 'primary',
@@ -48,8 +52,9 @@
                       };
                     @endphp
                     <tr>
+                      <td hidden>{{$client->created_at}}</td>
                       <td><strong>{{ $client->nombre }}</strong></td>
-                      <td>{{ $client->telefono }}</td>
+                      <td>{{ $client->curp }}</td>
                       <td>
                         <span class="badge bg-dark">
                           {{ $client->user ? $client->user->name : 'Desconocido' }}
@@ -111,3 +116,27 @@
     </div>
   </main>
 @endsection
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $('#clientsTable').DataTable({
+  lengthChange: false,
+  order: [[0, 'desc']],  // Ordena la primera columna descendente
+  language: {
+    search: "Buscar:",
+    paginate: {
+      previous: "Anterior",
+      next: "Siguiente"
+    },
+    zeroRecords: "No se encontraron resultados",
+    info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+    infoEmpty: "Mostrando 0 a 0 de 0 registros",
+    infoFiltered: "(filtrado de _MAX_ registros totales)"
+  }
+});
+  });
+</script>
+
+

@@ -21,7 +21,9 @@
                   <tr>
                     <th>Semana</th>
                     <th>Fecha de Pago</th>
-                    <th>Monto</th>
+                    <th>Monto a pagar</th>
+                    <th>Monto pagado</th>
+                    <th>Restante</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                   </tr>
@@ -31,7 +33,9 @@
                   <tr>
                     <td>{{ $week->numero_semana }}</td>
                     <td>{{ \Carbon\Carbon::parse($week->fecha_pago)->format('d/m/Y') }}</td>
-                    <td>${{ number_format($week->monto_pago, 2) }}</td>
+                    <td>${{ number_format($week->monto_pago, 2) }}</td> <!-- Monto a pagar original -->
+                    <td>${{ number_format($week->monto_pago - $week->restante, 2) }}</td> <!-- Monto pagado -->
+                    <td>${{ number_format($week->restante, 2) }}</td> <!-- Monto restante -->
                     <td>
                       <span class="badge bg-{{ 
                         $week->estado === 'pagado' ? 'success' : 
@@ -48,7 +52,8 @@
                         </form>
                       @endif
                       @if(auth()->user()->level === 'admin')
-                        <a href="{{ route('weeks.edit', $week) }}" class="btn btn-sm btn-warning" title="Editar semana">✏</a>
+                       <a href="{{ route('weeks.abonoForm', $week) }}" class="btn btn-sm btn-primary" title="Abonar a esta semana">💵 Abonar</a>
+
                       @endif
                     </td>
                   </tr>

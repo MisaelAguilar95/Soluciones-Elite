@@ -12,6 +12,7 @@ class Week extends Model
         'fecha_pago',
         'monto_pago',
         'estado',
+        'restante'
     ];
     public function loan()
 {

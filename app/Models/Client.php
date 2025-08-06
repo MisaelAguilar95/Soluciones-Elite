@@ -9,7 +9,7 @@ class Client extends Model
 {
     use HasFactory;
      protected $fillable = [
-        'user_id', 'nombre', 'email', 'telefono', 'monto'
+        'user_id', 'nombre', 'email', 'telefono', 'monto', 'address', 'aval', 'curp'
     ];
 
     public function user()
@@ -21,5 +21,10 @@ class Client extends Model
     {
         return $this->hasMany(Loan::class);
     }
+
+    public function latestLoan()
+{
+    return $this->hasOne(Loan::class)->latestOfMany();
+}
 
 }

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 //use App\Http\Controllers\Client;
 use App\Models\Loan;
 use App\Models\Client;
+use App\Exports\LoansExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 
@@ -45,6 +47,7 @@ class LoanController extends Controller
         }
         
        $interes = $request->monto * .4;
+       $restante = $request->monto + $interes;
         
         $loan = $client->loans()->create([
             'monto' => $request->monto,
@@ -52,6 +55,7 @@ class LoanController extends Controller
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin' => null,
             'estado' => 'activo',
+            'restante' => $restante
         ]);
 
         // Crear 14 semanas con fechas semanales desde fecha_inicio
@@ -76,6 +80,7 @@ class LoanController extends Controller
                 'fecha_pago' => $fechaInicio->copy()->addWeeks($i),
                 'monto_pago' => $montoPorSemana,
                 'estado' => 'pendiente',
+                'restante' => $montoPorSemana
             ]);
         }
 
@@ -132,11 +137,26 @@ class LoanController extends Controller
         $loans = $client->loans()->latest()->paginate(10);
 
         // Verificar si hay un préstamo activo
-        $tienePrestamoActivo = $client->loans()->where('estado', 'activo')->exists();
+        $tienePrestamoActivo = $client->loans()
+        ->whereIn('estado', ['activo', 'retraso'])
+        ->exists();
+
 
         return view('loans.index_by_client', compact('client', 'loans', 'tienePrestamoActivo'));
     }
 
+    public function reporte()
+    {
+        // Obtener préstamos con sus clientes, semanas y usuarios (creadores)
+        $loans = Loan::with(['client', 'weeks', 'client.user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
+        return view('report.loans', compact('loans'));
+    }
+    public function export()
+{
+    return Excel::download(new LoansExport, 'reporte_prestamos.xlsx');
+}
 
 }
