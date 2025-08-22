@@ -85,6 +85,10 @@
               <input type="number" name="monto" id="monto" class="form-control" required min="1" step="0.01">
             </div>
             <div class="mb-3">
+              <label for="folio_pagare" class="form-label">Folio Pagaré</label>
+              <input type="number" name="folio_pagare" id="folio_pagare" class="form-control" required min="1" >
+            </div>
+            <div class="mb-3">
               <label for="fecha_inicio" class="form-label">Fecha de Inicio:</label>
               <input type="date" name="fecha_inicio" id="fecha_inicio"  class="form-control " value="fecha_inicio" required>
             </div>

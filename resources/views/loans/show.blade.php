@@ -51,10 +51,8 @@
                           <button class="btn btn-sm btn-success" title="Marcar como pagado">✔</button>
                         </form>
                       @endif
-                      @if(auth()->user()->level === 'admin')
                        <a href="{{ route('weeks.abonoForm', $week) }}" class="btn btn-sm btn-primary" title="Abonar a esta semana">💵 Abonar</a>
 
-                      @endif
                     </td>
                   </tr>
                 @endforeach

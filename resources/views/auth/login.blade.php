@@ -7,7 +7,7 @@
 <main class="main-content mt-0">
   <!-- Hero Header con imagen de fondo -->
   <div class="page-header min-vh-100 d-flex align-items-center justify-content-center"
-       style="background-image: url('{{ asset('assets/img/login1.jpg') }}'); background-size: cover; background-position: center;">
+       style="background-image: url('{{ asset('assets/img/login2.jpg') }}'); background-size: cover; background-position: center;">
 
     <!-- Máscara oscura -->
     <span class="mask bg-gradient-dark opacity-6 position-absolute top-0 start-0 w-100 h-100"></span>

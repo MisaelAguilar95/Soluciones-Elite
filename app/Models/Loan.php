@@ -27,48 +27,55 @@ class Loan extends Model
         return $restante > 0 ? $restante : 0;
     }
     
-           public function actualizarEstado()
-    {
-        $now = now();
-        $pagos = $this->weeks;
-    
-        $pagados = 0;
-        $retrasos = 0;
-    
-        foreach ($pagos as $pago) {
-            // Revertir estado si la fecha aún no ha pasado
-            if ($pago->estado === 'retraso' && $pago->fecha_pago >= $now) {
-                $pago->estado = 'pendiente';
-                $pago->save();
-            }
-        
-            // Marcar como retraso si ya venció y sigue pendiente
-            if ($pago->estado === 'pendiente' && $pago->fecha_pago < $now) {
-                $pago->estado = 'retraso';
-                $pago->save();
-            }
-        
-            if ($pago->estado === 'pagado') {
-                $pagados++;
-            } elseif ($pago->estado === 'retraso') {
-                $retrasos++;
-            }
+   public function actualizarEstado()
+{
+    $now = now();
+    $pagos = $this->weeks;
+
+    $pagados = 0;
+    $retrasos = 0;
+
+    // Primero actualizar semanas según fecha y pagos
+    foreach ($pagos as $pago) {
+        if ($pago->estado === 'pagado') {
+            $pagados++;
+            continue;
         }
-    
-        $total = $pagos->count();
-    
-        if ($retrasos >= 10) {
-            $this->estado = 'vencido';
-        } elseif ($pagados === $total) {
-            $this->estado = 'pagado';
-        } elseif ($retrasos > 0) {
-            $this->estado = 'retraso';
+
+        if ($pago->fecha_pago < $now) {
+            $pago->estado = 'retraso';
+            $retrasos++;
         } else {
-            $this->estado = 'activo';
+            $pago->estado = 'pendiente';
         }
-    
-        $this->save();
+
+        $pago->save();
     }
+
+    $total = $pagos->count();
+
+    // Determinar estado final del préstamo
+    if ($retrasos >= 10) {
+        $this->estado = 'vencido';
+    } elseif ($pagados === $total) {
+        $this->estado = 'pagado';
+    } elseif ($retrasos > 0) {
+        $this->estado = 'retraso';
+    } else {
+        $this->estado = 'activo';
+    }
+
+    $this->save();
+
+    // 🔹 Actualizar semanas para reflejar "vencido" si el préstamo está vencido
+    if ($this->estado === 'vencido') {
+        $this->weeks()->where('estado', '!=', 'pagado')
+                     ->update(['estado' => 'vencido']);
+    }
+}
+
+
+
 
     public function client()
     {

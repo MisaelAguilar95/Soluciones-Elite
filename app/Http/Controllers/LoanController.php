@@ -33,59 +33,71 @@ class LoanController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'monto' => 'required|numeric|min:1',
-        ]);
+{
+    $request->validate([
+        'client_id' => 'required|exists:clients,id',
+        'monto' => 'required|numeric|min:1',
+        'fecha_inicio' => 'required|date',
+    ]);
 
-        $client = Client::findOrFail($request->client_id);
+    $client = Client::findOrFail($request->client_id);
 
-        $existePrestamoPendiente = $client->loans()->where('estado', 'activo')->exists();
-        if ($existePrestamoPendiente) {
-            return redirect()->back()->with('error', 'Este cliente ya tiene un préstamo activo.');
-        }
-        
-       $interes = $request->monto * .4;
-       $restante = $request->monto + $interes;
-        
-        $loan = $client->loans()->create([
-            'monto' => $request->monto,
-            'interes' => $interes, // o de donde venga
-            'fecha_inicio' => $request->fecha_inicio,
-            'fecha_fin' => null,
-            'estado' => 'activo',
-            'restante' => $restante
-        ]);
+    // Puedes descomentar si quieres impedir préstamos activos múltiples
+    // $existePrestamoPendiente = $client->loans()->where('estado', 'activo')->exists();
+    // if ($existePrestamoPendiente) {
+    //     return redirect()->back()->with('error', 'Este cliente ya tiene un préstamo activo.');
+    // }
 
-        // Crear 14 semanas con fechas semanales desde fecha_inicio
-        $fechaInicio = \Carbon\Carbon::parse($request->fecha_inicio);
+    // Calcular interés y monto total
+    $interes = $request->monto * 0.40;
+    $restante = $request->monto + $interes;
 
-        // Calcular monto total con interés del 40%
-        $montoTotal = $loan->monto + ($loan->monto * 0.40);
-        $montoPorSemana = round($montoTotal / 14, 2);
-            
-        // Semana 0 (inicio del préstamo, sin pago)
+    // Crear préstamo
+    $loan = $client->loans()->create([
+        'monto' => $request->monto,
+        'interes' => $interes,
+        'fecha_inicio' => $request->fecha_inicio,
+        'fecha_fin' => null,
+        'estado' => 'activo', // se actualizará más abajo
+        'restante' => $restante,
+        'folio_pagare' => $request->folio_pagare ?? null,
+    ]);
+
+    // Crear semanas
+    $fechaInicio = \Carbon\Carbon::parse($request->fecha_inicio);
+    $montoPorSemana = round($restante / 14, 2);
+    $now = now();
+
+    // Semana 0 (inicio del préstamo, sin pago)
+    $loan->weeks()->create([
+        'numero_semana' => 0,
+        'fecha_pago' => $fechaInicio,
+        'monto_pago' => 0,
+        'estado' => 'pendiente',
+        'restante' => 0
+    ]);
+
+    // Semanas 1 a 14 (pagos semanales)
+    for ($i = 1; $i <= 14; $i++) {
+        $fechaSemana = $fechaInicio->copy()->addWeeks($i);
+        $estadoSemana = $fechaSemana < $now ? 'retraso' : 'pendiente';
+
         $loan->weeks()->create([
-            'numero_semana' => 0,
-            'fecha_pago' => $fechaInicio,
-            'monto_pago' => 0,
-            'estado' => 'pendiente',
+            'numero_semana' => $i,
+            'fecha_pago' => $fechaSemana,
+            'monto_pago' => $montoPorSemana,
+            'estado' => $estadoSemana,
+            'restante' => $montoPorSemana
         ]);
-        
-        // Semanas 1 a 14 (pagos semanales)
-        for ($i = 1; $i <= 14; $i++) {
-            $loan->weeks()->create([
-                'numero_semana' => $i,
-                'fecha_pago' => $fechaInicio->copy()->addWeeks($i),
-                'monto_pago' => $montoPorSemana,
-                'estado' => 'pendiente',
-                'restante' => $montoPorSemana
-            ]);
-        }
-
-        return redirect()->route('clients.loans', $client)->with('success', 'Préstamo y semanas creados con éxito.');
     }
+
+    // Actualizar estado del préstamo según semanas
+    $loan->actualizarEstado();
+
+    return redirect()->route('clients.loans', $client)
+                     ->with('success', 'Préstamo y semanas creados con éxito.');
+}
+
 
     /**
      * Display the specified resource.

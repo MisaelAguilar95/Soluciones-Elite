@@ -32,12 +32,20 @@
         <li class="nav-item mt-3">
           <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Administración</h6>
         </li>
-        <li class="nav-item">
+        {{-- <li class="nav-item">
          <a class="nav-link {{ request()->routeIs('reporte-prestamos') ? 'active' : '' }}" href="{{ route('reporte.prestamos') }}">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="ni ni-chart-bar-32 text-dark text-sm opacity-10"></i>
             </div>
-            <span class="nav-link-text ms-1">Reporte</span>
+            <span class="nav-link-text ms-1">Reporte General</span>
+          </a>
+        </li> --}}
+         <li class="nav-item">
+         <a class="nav-link {{ request()->routeIs('reportes.index') ? 'active' : '' }}" href="{{ route('reportes.index') }}">
+            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="ni ni-chart-bar-32 text-dark text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text ms-1">Reporte Por Prestamista</span>
           </a>
         </li>
         <li class="nav-item">

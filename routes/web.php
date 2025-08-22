@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WeekController;
 use Illuminate\Support\Facades\Route;
 use App\Exports\LoansExport;
@@ -59,6 +60,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/weeks/{week}/abonar', [WeekController::class, 'procesarAbono'])->name('weeks.procesarAbono');
 
     Route::get('/reporte-prestamos', [LoanController::class, 'reporte'])->name('reporte.prestamos');
+    Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+    Route::post('/reportes/buscar', [ReporteController::class, 'buscar'])->name('reportes.buscar');
 
 
 
