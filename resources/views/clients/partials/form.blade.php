@@ -26,7 +26,7 @@
 
 <div class="mb-3">
   <label for="telefono" class="form-label">Teléfono:</label>
-  <input type="text" name="telefono" class="form-control @error('telefono') is-invalid @enderror"
+  <input type="text" name="telefono" maxlength="10" class="form-control @error('telefono') is-invalid @enderror"
          value="{{ old('telefono', $client->telefono ?? '') }}">
   @error('telefono') <div class="invalid-feedback">{{ $message }}</div> @enderror
 </div>
@@ -34,7 +34,7 @@
 <div class="mb-3">
   <label for="monto" class="form-label">Monto $:</label>
   <input type="number" step="0.01" name="monto" class="form-control @error('monto') is-invalid @enderror"
-         value="{{ old('monto', $client->monto ?? '') }}" required>
+         value="{{ old('monto', $client->monto ?? '') }}" min="1" maxlength="12" required>
   @error('monto') <div class="invalid-feedback">{{ $message }}</div> @enderror
 </div>
 <div class="mb-3">
@@ -70,7 +70,7 @@
 <div class="mb-3">
   <label for="folio_pagare" class="form-label">Folio Pagare:</label>
   <input type="text" name="folio_pagare" class="form-control @error('folio_pagare') is-invalid @enderror"
-         value="{{ old('folio_pagare', $loan->folio_pagare ?? '') }}" maxlength="8">
+         value="{{ old('folio_pagare', $loan->folio_pagare ?? '') }}" maxlength="8" required>
   @error('folio_pagare') <div class="invalid-feedback">{{ $message }}</div> @enderror
 </div>
 
