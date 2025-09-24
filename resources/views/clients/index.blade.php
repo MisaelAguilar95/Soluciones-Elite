@@ -1,6 +1,20 @@
 @extends('layouts.app')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<style>
+.input-group .form-control {
+  height: 45px; /* ajusta según lo que mida tu input */
+}
 
+.input-group .btn {
+  height: 45px; /* mismo alto que el input */
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+</style>
 @section('content')
   <div class="min-height-300 bg-dark position-absolute w-100"></div>
   @include('partials.sidebar')
@@ -24,6 +38,21 @@
               @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
               @endif
+              <form method="GET" action="{{ route('clients.index') }}" class="mb-3 d-flex ">
+                <div class="input-group" style="max-width: 400px;">
+                  <input 
+                    type="text" 
+                    name="search" 
+                    value="{{ request('search') }}" 
+                    class="form-control" 
+                    placeholder="Buscar cliente..."
+                  >
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </form>
+
               <div class="table-responsive">
               <table id="clientsTable" class="table table-striped ">
                 <thead>   
@@ -31,7 +60,7 @@
                     <th hidden>Creado</th>
                     <th>Nombre</th>
                     <th>CURP</th>
-                    <th>Creador</th>
+                    <th>Prestamista</th>
                     <th>Monto</th>
                     <th>Restante</th>
                     <th>Estado</th>
@@ -70,13 +99,14 @@
                         @endif
                       </td>
                       <td>
-                        @if($prestamoActivo)
-                          <span class="text-danger fw-semibold">
-                            ${{ number_format($prestamoActivo->montoRestante(), 2) }}
-                          </span>
-                        @else
-                          <span class="text-muted">$0.00</span>
-                        @endif
+                       @if($prestamoActivo)
+  <span class="text-danger fw-semibold">
+    ${{ number_format($prestamoActivo->restante, 2) }}
+  </span>
+@else
+  <span class="text-muted">$0.00</span>
+@endif
+
                       </td>
                       <td>
                         <span class="badge bg-{{ $badgeColor }}">
@@ -106,8 +136,14 @@
                 </tbody>
               </table>
               </div>
-            
-              {{ $clients->links() }}
+              <div class="d-flex justify-content-end mt-3">
+              <style>
+              /* Oculta el texto de "Mostrando X al Y de Z resultados" */
+               .pagination .hidden { display: none; }
+              </style>
+
+              {{ $clients->links('pagination::bootstrap-5') }}
+              </div>
             </div>
           </div>
         </div>
@@ -121,21 +157,19 @@
 
 <script>
   $(document).ready(function() {
-    $('#clientsTable').DataTable({
+ $('#clientsTable').DataTable({
+  paging: false, // Laravel ya pagina
+  searching: false,
   lengthChange: false,
-  order: [[0, 'desc']],  // Ordena la primera columna descendente
+  order: [[0, 'desc']],
+  info: false, // ✅ desactiva “Mostrando X a Y de Z resultados”
   language: {
-    search: "Buscar:",
-    paginate: {
-      previous: "Anterior",
-      next: "Siguiente"
-    },
-    zeroRecords: "No se encontraron resultados",
-    info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-    infoEmpty: "Mostrando 0 a 0 de 0 registros",
-    infoFiltered: "(filtrado de _MAX_ registros totales)"
+    paginate: { previous: "Anterior", next: "Siguiente" },
+    zeroRecords: "No se encontraron resultados"
   }
 });
+
+
   });
 </script>
 

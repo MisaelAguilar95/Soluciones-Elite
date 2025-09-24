@@ -11,9 +11,16 @@
   
         <div class="card mb-4">
           <div class="card-header">
+             <div class="d-flex justify-content-between align-items-center mb-3">
+              <!-- Botón regresar -->
+              <button class="btn btn-primary" onclick="history.back()">
+                  <i class="fas fa-arrow-left"></i> 
+              </button>
+            </div>
               <h3>Detalle del Préstamo #{{ $loan->id }} — Cliente: {{ $loan->client->nombre }}</h3>
             <strong>Préstamo #{{ $loan->id }}</strong> — Monto: ${{ number_format($loan->monto, 2) }} — Inicio: {{ \Carbon\Carbon::parse($loan->created_at)->format('d/m/Y') }}
           </div>
+         
           <div class="card-body">
             <div class="table-responsive">
               <table class="table table-striped">

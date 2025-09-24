@@ -17,32 +17,43 @@ class ClientController extends Controller
     // tus métodos...
 
 
-   public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
-    
+
         if ($user->level === 'admin') {
-            $clients = Client::with(['loans.weeks', 'user'])
-                        ->orderBy('created_at', 'desc')
-                        ->paginate(10);
+            $query = Client::with(['loans.weeks', 'user'])
+                        ->orderBy('created_at', 'desc');
         } else {
-            $clients = $user->clients()->with(['loans.weeks', 'user'])
-                        ->orderBy('created_at', 'desc')
-                        ->paginate(10);
+            $query = $user->clients()->with(['loans.weeks', 'user'])
+                        ->orderBy('created_at', 'desc');
         }
-    
+
+        // 🔎 Filtro de búsqueda
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('curp', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $clients = $query->paginate(10)->withQueryString();
+
         // Actualizar estado de préstamos según semanas
         foreach ($clients as $client) {
             foreach ($client->loans as $loan) {
                 $loan->actualizarEstado();
             }
         }
+
         $users = User::all();
-    
+
         return view('clients.index', compact('clients','users'));
     }
-
-
 
 
     public function create()
