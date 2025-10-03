@@ -47,31 +47,28 @@ class WeekController extends Controller
         //
     }
 
-   public function pagar(Week $week)
+public function pagar(Week $week)
 {
     $loan = $week->loan;
 
-    // Registrar pago completo de la semana (restante queda en 0)
+    // Registrar pago completo de la semana
     $week->update([
-        'estado' => 'pagado',
-        'restante' => 0,  // Ya no queda nada por pagar en esta semana
+        'restante' => 0,
+        'estado'  => 'pagado', // ✅ usar la columna correcta
     ]);
 
-    // Restar el monto restante de esta semana al restante total del préstamo
-    $nuevoRestante = max(0, $loan->restante - $week->restante);
-    $loan->restante = $nuevoRestante;
+    // Recalcular restante total del préstamo
+    $loan->restante = $loan->weeks()->sum('restante');
 
-    // Verificar si todas las semanas están pagadas
-    $semanasPendientes = $loan->weeks()->where('estado', '!=', 'pagado')->count();
-
-    if ($semanasPendientes === 0) {
-        $loan->estado = 'pagado';
-    }
-
+    // Actualizar estado del préstamo
+    $semanasPendientes = $loan->weeks()->where('restante', '>', 0)->count();
+    $loan->estado = $semanasPendientes > 0 ? 'activo' : 'pagado';
     $loan->save();
 
     return back()->with('success', 'Semana marcada como pagada.');
 }
+
+
 
 
 
@@ -83,21 +80,43 @@ class WeekController extends Controller
         return view('weeks.edit', compact('week'));
     }
 
-    public function update(Request $request, Week $week)
-    {
-        if (auth()->user()->level !== 'admin') {
-            abort(403);
-        }
+public function update(Request $request, Week $week)
+{
+    $request->validate([
+        'fecha_pago' => 'required|date',
+        // El monto a pagar no se puede cambiar
+        // 'monto_pago' => 'required|numeric|min:0',
+        'restante' => 'required|numeric|min:0|max:' . $week->monto_pago,
+    ]);
 
-        $request->validate([
-            'fecha_pago' => 'required|date',
-            'monto_pago' => 'required|numeric|min:0',
-        ]);
+    $week->fecha_pago = $request->fecha_pago;
+    // No modificamos monto_pago, queda igual
+    $week->restante = $request->restante;
 
-        $week->update($request->only('fecha_pago', 'monto_pago'));
-
-        return redirect()->route('loans.weeks', $week->loan_id)->with('success', 'Semana actualizada correctamente.');
+    // Actualizar estado según restante
+    if ($week->restante <= 0) {
+        $week->estado = 'pagado';
+        $week->restante = 0;
+    } else {
+        $week->estado = 'pendiente';
     }
+
+    $week->save();
+
+    // Recalcular restante total del préstamo
+    $loan = $week->loan;
+    $loan->restante = $loan->weeks()->sum('restante');
+
+    // Actualizar estado del préstamo
+    $semanasPendientes = $loan->weeks()->where('restante', '>', 0)->count();
+    $loan->estado = $semanasPendientes > 0 ? 'activo' : 'pagado';
+    $loan->save();
+
+    return redirect()
+        ->route('loans.show', $week->loan_id)
+        ->with('success', 'Pago actualizado correctamente');
+}
+
 
     // Mostrar formulario para ingresar abono
 public function showAbonoForm(Week $week)

@@ -27,9 +27,11 @@
                             </h3>
 
                             <!-- Botón nuevo préstamo -->
+                             @if(auth()->user()->level === 'admin')
                             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#nuevoPrestamoModal">
                                 Nuevo Préstamo
                             </button>
+                            @endif
                         </div>
 
                         <!-- Mensajes de sesión -->

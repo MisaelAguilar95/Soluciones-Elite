@@ -12,9 +12,17 @@ class ReporteController extends Controller
 {
     public function index()
     {
-        $usuarios = User::all();
+        if(auth()->user()->level === 'admin') {
+            // Admin ve todos los usuarios
+            $usuarios = User::where('level', 'user')->get();
+        } else {
+            // Usuario normal solo ve su propio usuario
+            $usuarios = collect([auth()->user()]);
+        }
+
         return view('report.index', compact('usuarios'));
     }
+
 
     public function buscar(Request $request)
     {

@@ -28,7 +28,6 @@
             <span class="nav-link-text ms-1">Dashboard</span>
           </a>
         </li>
-         @if(auth()->user()->level === 'admin')
         <li class="nav-item mt-3">
           <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Administración</h6>
         </li>
@@ -48,6 +47,7 @@
             <span class="nav-link-text ms-1">Reporte Por Prestamista</span>
           </a>
         </li>
+          @if(auth()->user()->level === 'admin')
         <li class="nav-item">
          <a class="nav-link {{ request()->routeIs('users.index') ? 'active' : '' }}" href="{{ route('users.index') }}">
             <i class="ni ni-single-02 text-dark"></i>

@@ -20,15 +20,19 @@
                     @csrf
                     <div class="col-md-3">
                         <label for="usuario_id" class="form-label">Usuario</label>
-                        <select name="usuario_id" id="usuario_id" class="form-select" required>
-                            <option value="todos" {{ (isset($usuarioId) && $usuarioId=='todos') ? 'selected' : '' }}>Todos</option>
-                            @foreach($usuarios as $usuario)
-                                <option value="{{ $usuario->id }}" 
-                                    {{ isset($usuarioId) && $usuarioId == $usuario->id ? 'selected' : '' }}>
-                                    {{ $usuario->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                            <select name="usuario_id" id="usuario_id" class="form-select" required>
+                                @if(auth()->user()->level === 'admin')
+                                    <option value="todos" {{ (isset($usuarioId) && $usuarioId=='todos') ? 'selected' : '' }}>Todos</option>
+                                @endif
+                            
+                                @foreach($usuarios as $usuario)
+                                    <option value="{{ $usuario->id }}" 
+                                        {{ isset($usuarioId) && $usuarioId == $usuario->id ? 'selected' : '' }}>
+                                        {{ $usuario->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+
                     </div>
 
                     <div class="col-md-2 campo-general">

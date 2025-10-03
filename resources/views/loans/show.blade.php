@@ -55,11 +55,16 @@
                       @if($week->estado !== 'pagado')
                         <form action="{{ route('weeks.pagar', $week) }}" method="POST" class="d-inline">
                           @csrf
-                          <button class="btn btn-sm btn-success" title="Marcar como pagado">✔</button>
+                          <button class="btn btn-sm btn-success" title="Marcar como pagado"
+                                  onclick="return confirm('¿Seguro que quieres marcar como pagado esta semana?')">✔</button>
                         </form>
                       @endif
-                       <a href="{{ route('weeks.abonoForm', $week) }}" class="btn btn-sm btn-primary" title="Abonar a esta semana">💵 Abonar</a>
-
+                      
+                      <a href="{{ route('weeks.abonoForm', $week) }}" class="btn btn-sm btn-primary" title="Abonar a esta semana">💵 Abonar</a>
+                      
+                      @if(auth()->user()->level === 'admin')
+                        <a href="{{ route('weeks.edit', $week) }}" class="btn btn-sm btn-warning" title="Editar pago">✏️ Editar</a>
+                      @endif
                     </td>
                   </tr>
                 @endforeach
