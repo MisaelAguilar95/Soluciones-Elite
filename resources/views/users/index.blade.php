@@ -27,6 +27,7 @@
                 <th>Email</th>
                 <th>Rol</th>
                 <th>Creado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -36,13 +37,30 @@
                 <td>{{ $user->email }}</td>
                 <td><span class="badge bg-{{ $user->level === 'admin' ? 'danger' : 'secondary' }}">{{ ucfirst($user->level) }}</span></td>
                 <td>{{ $user->created_at->format('d/m/Y') }}</td>
+                <td>
+                  <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-warning">
+                    Editar
+                  </a>
+                
+                  <form action="{{ route('users.destroy', $user) }}"
+                        method="POST"
+                        class="d-inline"
+                        onsubmit="return confirm('¿Seguro que deseas eliminar este usuario?');">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-sm btn-danger">
+                      Eliminar
+                    </button>
+                  </form>
+                </td>
+
               </tr>
               @endforeach
             </tbody>
           </table>
         </div>
 
-        {{ $users->links() }}
+        {{-- {{ $users->links() }} --}}
       </div>
     </div>
   </div>

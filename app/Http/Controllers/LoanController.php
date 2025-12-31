@@ -113,26 +113,37 @@ class LoanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+   public function edit(Loan $loan)
+{
+    return view('loans.edit', compact('loan'));
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+    public function update(Request $request, Loan $loan)
+{
+    $request->validate([
+        'monto' => 'required|numeric|min:1',
+        'fecha_inicio' => 'required|date',
+        'estado' => 'required|string'
+    ]);
+
+    $loan->update($request->all());
+
+    return redirect()->back()->with('success', 'Préstamo actualizado correctamente.');
+}
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
-    }
+
+public function destroy(Loan $loan)
+{
+    $loan->delete();
+
+    return redirect()->back()->with('success', 'Préstamo eliminado correctamente.');
+}
 
    
 

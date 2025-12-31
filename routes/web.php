@@ -37,6 +37,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/usuarios', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
+
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
 
@@ -47,6 +51,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/loans/{loan}', [LoanController::class, 'show'])->name('loans.show');
     Route::get('/clients/{client}/loans', [LoanController::class, 'indexByClient'])->name('clients.loans');
     Route::post('/loans', [LoanController::class, 'store'])->name('loans.store');
+    Route::get('/loans/{loan}/edit', [LoanController::class, 'edit'])->name('loans.edit');
+    Route::put('/loans/{loan}', [LoanController::class, 'update'])->name('loans.update');
+    Route::delete('/loans/{loan}', [LoanController::class, 'destroy'])->name('loans.destroy');
     // Ver semanas de un préstamo
     Route::get('/loans/{loan}/weeks', [LoanController::class, 'weeks'])->name('loans.weeks');
 
